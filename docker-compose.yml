@@ -1,0 +1,80 @@
+services:
+
+  authentication:
+    build: ./services/authentication-service
+    ports:
+      - "8081:8081"
+    environment:
+      DB_URL: jdbc:postgresql://host.docker.internal:5432/itsm_auth
+      DB_USERNAME: itsm_user
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+    restart: unless-stopped
+
+  employee:
+    build: ./services/employee-service
+    ports:
+      - "8082:8082"
+    environment:
+      DB_URL: jdbc:postgresql://host.docker.internal:5432/itsm_auth
+      DB_USERNAME: itsm_user
+      DB_PASSWORD: ${DB_PASSWORD}
+    restart: unless-stopped
+
+  ticket:
+    build: ./services/ticket-service
+    ports:
+      - "8083:8083"
+    environment:
+      DB_URL: jdbc:postgresql://host.docker.internal:5432/itsm_auth
+      DB_USERNAME: itsm_user
+      DB_PASSWORD: ${DB_PASSWORD}
+    restart: unless-stopped
+
+  incident:
+    build: ./services/incident-service
+    ports:
+      - "8084:8084"
+    environment:
+      DB_URL: jdbc:postgresql://host.docker.internal:5432/itsm_auth
+      DB_USERNAME: itsm_user
+      DB_PASSWORD: ${DB_PASSWORD}
+    restart: unless-stopped
+
+  notification:
+    build: ./services/notification-service
+    ports:
+      - "8085:8085"
+    restart: unless-stopped
+
+  asset:
+    build: ./services/asset-service
+    ports:
+      - "8086:8086"
+    environment:
+      DB_URL: jdbc:postgresql://host.docker.internal:5432/itsm_auth
+      DB_USERNAME: itsm_user
+      DB_PASSWORD: ${DB_PASSWORD}
+    restart: unless-stopped
+
+  reporting:
+    build: ./services/reporting-service
+    ports:
+      - "8087:8087"
+    environment:
+      EMPLOYEE_SERVICE_URL: http://employee:8082
+      TICKET_SERVICE_URL: http://ticket:8083
+      INCIDENT_SERVICE_URL: http://incident:8084
+      ASSET_SERVICE_URL: http://asset:8086
+    depends_on:
+      - employee
+      - ticket
+      - incident
+      - asset
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    restart: unless-stopped
